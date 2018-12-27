@@ -6,6 +6,9 @@
 BLEEMSYNC_EXEC=/media/bleemsync/bin/execute
 LOLHACK_EXEC=/media/lolhack/lolhack.sh
 
+# Fix permission when building from Windows...
+chmod +x mount.exfat-fuse
+
 # For each USB drive with the label "SONYXF"
 blkid | grep "/dev/sd.1:.*LABEL=\"SONYXF\"" | cut -d: -f1 | while read -r DEV; do
     # Attempt to mount
