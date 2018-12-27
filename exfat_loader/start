@@ -12,29 +12,36 @@ chmod +x mount.exfat-fuse
 # For each USB drive with the label "SONYXF"
 blkid | grep "/dev/sd.1:.*LABEL=\"SONYXF\"" | cut -d: -f1 | while read -r DEV; do
     # Attempt to mount
+    echo "Mounting ${DEV}"
     mount ${DEV} /media || continue
     # Verify this is the same drive we launched the package from
-    if [ -d "/media/$(basename ${PWD})" ]; then
+    if [ -d "/media/$(basename $(dirname ${PWD}))" ]; then
         # Unmount, then remount the exFAT partition
+        echo "Unmounting /media"
         umount /media || break
+        echo "Mounting exFAT partition"
         ./mount.exfat-fuse ${DEV%1}2 /media || continue
 
         # Load up BleemSync bootstrap or lolhack script
         if [ -f ${LOLHACK_EXEC} ]; then
+            echo "Found lolhack"
             chmod +x ${LOLHACK_EXEC}
             cd $(dirname ${LOLHACK_EXEC})
             ./$(basename ${LOLHACK_EXEC})
             cd -
         elif [ -f ${BLEEMSYNC_EXEC} ]; then
+            echo "Found BleemSync exec"
             chmod +x ${BLEEMSYNC_EXEC}
             ${BLEEMSYNC_EXEC}
         fi
 
         # Unmount and finish
+        echo "Done; Unmounting /media"
         umount /media
         break
     else
         # Unmount and try any other drives
+        echo "Failed to find \"$(basename $(dirname ${PWD}))\" on ${DEV}"
         umount /media
     fi
 done
