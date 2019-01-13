@@ -22,18 +22,19 @@ blkid | grep "/dev/sd.1:.*LABEL=\"SONYXF\"" | cut -d: -f1 | while read -r DEV; d
         echo "Mounting exFAT partition"
         ./mount.exfat-fuse ${DEV%1}2 /media || continue
 
+        pushd
         # Load up BleemSync bootstrap or lolhack script
         if [ -f ${LOLHACK_EXEC} ]; then
             echo "Found lolhack"
             chmod +x ${LOLHACK_EXEC}
             cd $(dirname ${LOLHACK_EXEC})
             ./$(basename ${LOLHACK_EXEC})
-            cd -
         elif [ -f ${BLEEMSYNC_EXEC} ]; then
             echo "Found BleemSync exec"
             chmod +x ${BLEEMSYNC_EXEC}
             ${BLEEMSYNC_EXEC}
         fi
+        popd
 
         # Unmount and finish
         echo "Done; Unmounting /media"
